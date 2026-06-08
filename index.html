@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Team PR Review Metrics | Jan–May 2026</title>
+<style>
+:root{
+  --bg:#f0f2f5; --card:#fff; --bdr:#dee2e9;
+  --blue:#2563eb; --teal:#0d9488; --green:#16a34a; --orange:#ea580c;
+  --red:#dc2626;  --purple:#7c3aed; --amber:#d97706; --slate:#475569;
+  --text:#1e293b; --sub:#64748b;   --muted:#94a3b8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── banner ── */
+.banner{background:linear-gradient(135deg,#0c1f3f 0%,#1e3a8a 55%,#1d4ed8 100%);
+        color:#fff;padding:26px 36px 20px}
+.banner h1{font-size:1.6rem;font-weight:800;letter-spacing:-.4px}
+.banner p{font-size:.87rem;opacity:.78;margin-top:5px}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.chip{background:rgba(255,255,255,.15);color:#fff;font-size:.71rem;font-weight:600;
+      padding:3px 11px;border-radius:20px;border:1px solid rgba(255,255,255,.22)}
+
+.wrap{max-width:100%;padding:20px 16px}
+
+/* ── stat cards ── */
+.scards{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin-bottom:20px}
+.sc{background:var(--card);border-radius:10px;padding:14px 10px;text-align:center;
+    border-top:3px solid var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.sc.t{border-color:var(--teal)}  .sc.o{border-color:var(--orange)}
+.sc.a{border-color:var(--amber)} .sc.g{border-color:var(--green)}
+.sc.p{border-color:var(--purple)}.sc.s{border-color:var(--slate)}
+.sc .v{font-size:1.65rem;font-weight:800;line-height:1}
+.sc .l{font-size:.63rem;color:var(--sub);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.sc .h{font-size:.7rem;color:var(--teal);font-weight:600;margin-top:2px}
+
+/* ── toolbar ── */
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+         background:var(--card);border-radius:10px;padding:12px 16px;
+         margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.tlbl{font-weight:700;font-size:.85rem;white-space:nowrap;color:var(--text)}
+select{padding:7px 30px 7px 11px;border:1.5px solid var(--bdr);border-radius:8px;
+       font-size:.85rem;font-weight:600;color:var(--text);background:#f8fafc;cursor:pointer;
+       appearance:none;
+       background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2364748b' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+       background-repeat:no-repeat;background-position:right 10px center}
+select:focus{outline:none;border-color:var(--blue)}
+#usel{min-width:200px} #msel{min-width:180px}
+.rinfo{font-size:.82rem;color:var(--sub);flex:1}
+.rinfo strong{color:var(--text);font-weight:700}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border:none;
+     border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;transition:background .15s;
+     white-space:nowrap}
+.btn-e{background:var(--blue);color:#fff} .btn-e:hover{background:#1d4ed8}
+
+/* ── table wrapper ── */
+.tbl-wrap{overflow-x:auto;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.09)}
+
+/* ── table ── */
+table{border-collapse:collapse;width:100%;font-size:.8rem;background:var(--card)}
+
+/* ── thead ── */
+thead tr:first-child th{
+  background:#1e3a8a;color:#fff;padding:9px 10px;font-size:.72rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;text-align:center;
+  border-right:1px solid rgba(255,255,255,.12)}
+thead tr:first-child th.mgrp{
+  background:#1d4ed8;font-size:.76rem;border-right:2px solid rgba(255,255,255,.2)}
+thead tr:first-child th.tot-hdr{background:#0f2a50}
+thead tr:first-child th.rec-hdr{background:#0f2a50;min-width:200px;text-align:left;padding-left:14px}
+thead tr:first-child th.user-hdr{background:#0f2a50;text-align:left;min-width:170px;padding-left:12px}
+
+thead tr:nth-child(2) th{
+  background:#263f7a;color:#cbd5e1;padding:6px 9px;font-size:.67rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:.3px;text-align:center;border-right:1px solid rgba(255,255,255,.08)}
+thead tr:nth-child(2) th.sh-tot{background:#1a3060}
+
+/* ── tbody ── */
+tbody tr{border-bottom:1px solid var(--bdr);transition:background .1s}
+tbody tr:hover td{background:#f0f5ff}
+tbody tr.hidden{display:none}
+
+/* user cell */
+td.user-cell{
+  position:sticky;left:0;z-index:2;background:var(--card);
+  border-right:2px solid var(--bdr);padding:8px 12px;
+  display:flex;align-items:center;gap:9px;min-width:170px}
+tbody tr:hover td.user-cell{background:#f0f5ff}
+.uav{width:32px;height:32px;border-radius:50%;
+     background:linear-gradient(135deg,#2563eb,#7c3aed);
+     color:#fff;font-weight:800;font-size:.88rem;
+     display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.uname{font-size:.8rem;font-weight:700;color:var(--text);word-break:break-all}
+
+/* data cells */
+td{padding:8px 10px;text-align:center;vertical-align:middle}
+td.zero{color:var(--muted);font-size:.72rem}
+
+/* month group cells */
+.c-prs{font-size:.95rem;font-weight:800;color:var(--blue)}
+.c-apr{font-size:.82rem;font-weight:700;color:var(--teal)}
+.c-cr {font-size:.78rem;font-weight:700;color:var(--orange)}
+.c-com{font-size:.88rem;font-weight:700;color:var(--slate)}
+.c-nit{font-size:.78rem;font-weight:700;color:#92400e}
+.c-fun{font-size:.78rem;font-weight:700;color:var(--green)}
+.c-tec{font-size:.78rem;font-weight:700;color:var(--purple)}
+
+.sub{display:block;font-size:.62rem;color:var(--muted);font-weight:500;margin-top:1px}
+.apr-pct{display:block;font-size:.62rem;color:var(--teal);font-weight:600;margin-top:1px}
+
+/* total columns */
+td.tot{border-left:2px solid #c7d7fe;background:#f8faff}
+tbody tr:hover td.tot{background:#eef3ff}
+.tot-prs{font-size:1rem;font-weight:800;color:var(--blue)}
+.tot-apr{font-size:.88rem;font-weight:800;color:var(--teal)}
+.tot-cr {font-size:.85rem;font-weight:700;color:var(--orange)}
+.tot-com{font-size:.9rem;font-weight:800;color:var(--slate)}
+.n-bar{display:flex;height:7px;border-radius:4px;overflow:hidden;background:#f1f5f9;
+       width:70px;margin:2px auto 4px;gap:0}
+.n-bar span{display:block;height:100%}
+.n-bar .nb{background:#fbbf24}.n-bar .fb{background:#4ade80}.n-bar .tb{background:#a78bfa}
+.nft-tags{display:flex;gap:3px;justify-content:center;flex-wrap:nowrap}
+.tg{font-size:.62rem;font-weight:700;padding:1px 5px;border-radius:5px;white-space:nowrap}
+.tg.n{background:#fef9c3;color:#92400e}
+.tg.f{background:#dcfce7;color:#15803d}
+.tg.t{background:#ede9fe;color:#6d28d9}
+
+/* recommendations */
+td.rec-cell{text-align:left;padding:8px 12px;min-width:200px;vertical-align:top;border-left:2px solid #c7d7fe}
+.rbadge{display:flex;align-items:flex-start;gap:6px;margin-bottom:5px;
+        padding:4px 7px;border-radius:6px;background:#fafafa;font-size:.68rem;line-height:1.4}
+.rbadge:last-child{margin-bottom:0}
+.rdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.rbadge.green{background:#f0fdf4} .rbadge.amber{background:#fffbeb} .rbadge.red{background:#fff5f5}
+.rbadge .rtitle{font-weight:700;color:var(--text)}
+
+/* footer row */
+tr.footer-row td{
+  background:#eff3ff !important;border-top:2.5px solid #93a8f4;
+  font-weight:700;font-size:.82rem}
+tr.footer-row td.user-cell{background:#e5ebff !important;font-size:.85rem;color:#1e3a8a}
+
+/* section label */
+.slbl{font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:10px;
+      display:flex;align-items:center;gap:8px}
+.slbl::before{content:'';width:4px;height:18px;background:var(--blue);border-radius:2px;display:block}
+
+/* ── monthly cards strip ── */
+.monthly-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+.month-block{background:var(--card);border-radius:12px;overflow:hidden;
+             box-shadow:0 1px 5px rgba(0,0,0,.08)}
+.month-block-hdr{padding:9px 14px;font-size:.78rem;font-weight:800;color:#fff;
+                 letter-spacing:.3px;text-align:center}
+.month-block-hdr.m1{background:linear-gradient(135deg,#1d4ed8,#3b82f6)}
+.month-block-hdr.m2{background:linear-gradient(135deg,#0d9488,#14b8a6)}
+.month-block-hdr.m3{background:linear-gradient(135deg,#7c3aed,#a78bfa)}
+.month-block-hdr.m4{background:linear-gradient(135deg,#ea580c,#fb923c)}
+.month-block-hdr.m5{background:linear-gradient(135deg,#16a34a,#4ade80)}
+.month-cards{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--bdr)}
+.mc-item{background:var(--card);padding:11px 10px;text-align:center}
+.mc-item .mc-val{font-size:1.45rem;font-weight:800;line-height:1;letter-spacing:-.5px}
+.mc-item .mc-lbl{font-size:.62rem;font-weight:600;text-transform:uppercase;
+                 letter-spacing:.5px;color:var(--sub);margin-top:4px}
+.mc-item .mc-sub{font-size:.68rem;font-weight:600;margin-top:2px}
+/* per-metric accent colours */
+.mc-prs .mc-val{color:var(--blue)}     .mc-prs .mc-sub{color:var(--blue)}
+.mc-apr .mc-val{color:var(--teal)}     .mc-apr .mc-sub{color:var(--teal)}
+.mc-com .mc-val{color:var(--slate)}    .mc-com .mc-sub{color:var(--slate)}
+.mc-cr  .mc-val{color:var(--orange)}   .mc-cr  .mc-sub{color:var(--orange)}
+
+@media(max-width:1100px){.monthly-strip{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.scards{grid-template-columns:repeat(4,1fr)};.monthly-strip{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.scards{grid-template-columns:repeat(2,1fr)};.monthly-strip{grid-template-columns:1fr};.banner{padding:18px}}
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <h1>Team PR Review Metrics &mdash; Jan–May 2026</h1>
+  <p>16 team members &nbsp;|&nbsp; PRs reviewed (excluding self-authored) &nbsp;|&nbsp;
+     Nitpick / Functional / Technical &nbsp;|&nbsp; Approvals &nbsp;|&nbsp; Recommended Actions</p>
+  <div class="chips">
+    <span class="chip">blackboard-learn / ultra</span>
+    <span class="chip">blackboard-learn / learn</span>
+    <span class="chip">blackboard-foundations / annotate-pdf-viewer</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ── Summary Cards ── -->
+  <div class="slbl">Team Summary</div>
+  <div class="scards">
+    <div class="sc">   <div class="v" id="sc-prs">771</div><div class="l">PRs Reviewed</div></div>
+    <div class="sc t"> <div class="v" id="sc-apr">741</div><div class="l">PRs Approved</div><div class="h" id="sc-apct">96% rate</div></div>
+    <div class="sc o"> <div class="v" id="sc-cr">51</div>  <div class="l">Changes Req.</div></div>
+    <div class="sc s"> <div class="v" id="sc-com">546</div><div class="l">Comments</div><div class="h" id="sc-avg" style="color:var(--slate)">0.7 avg/PR</div></div>
+    <div class="sc a"> <div class="v" id="sc-nit">286</div><div class="l">Nitpick</div></div>
+    <div class="sc g"> <div class="v" id="sc-fun">231</div><div class="l">Functional</div></div>
+    <div class="sc p"> <div class="v" id="sc-tec">29</div> <div class="l">Technical</div></div>
+    <div class="sc">   <div class="v" id="sc-usr">16</div> <div class="l">Reviewers</div></div>
+  </div>
+
+  <!-- ── Monthly Cards Strip ── -->
+  <div class="slbl">Monthly Breakdown</div>
+  <div class="monthly-strip" id="monthlyStrip">
+    <!-- Jan 2026 -->
+    <div class="month-block">
+      <div class="month-block-hdr m1">January 2026</div>
+      <div class="month-cards">
+        <div class="mc-item mc-prs"><div class="mc-val" id="mc-2026-01-prs">—</div><div class="mc-lbl">PRs Reviewed</div></div>
+        <div class="mc-item mc-apr"><div class="mc-val" id="mc-2026-01-apr">—</div><div class="mc-lbl">Approved</div><div class="mc-sub" id="mc-2026-01-apct">—</div></div>
+        <div class="mc-item mc-com"><div class="mc-val" id="mc-2026-01-com">—</div><div class="mc-lbl">Comments</div></div>
+        <div class="mc-item mc-cr" ><div class="mc-val" id="mc-2026-01-cr" >—</div><div class="mc-lbl">Changes Req.</div></div>
+      </div>
+    </div>
+    <!-- Feb 2026 -->
+    <div class="month-block">
+      <div class="month-block-hdr m2">February 2026</div>
+      <div class="month-cards">
+        <div class="mc-item mc-prs"><div class="mc-val" id="mc-2026-02-prs">—</div><div class="mc-lbl">PRs Reviewed</div></div>
+        <div class="mc-item mc-apr"><div class="mc-val" id="mc-2026-02-apr">—</div><div class="mc-lbl">Approved</div><div class="mc-sub" id="mc-2026-02-apct">—</div></div>
+        <div class="mc-item mc-com"><div class="mc-val" id="mc-2026-02-com">—</div><div class="mc-lbl">Comments</div></div>
+        <div class="mc-item mc-cr" ><div class="mc-val" id="mc-2026-02-cr" >—</div><div class="mc-lbl">Changes Req.</div></div>
+      </div>
+    </div>
+    <!-- Mar 2026 -->
+    <div class="month-block">
+      <div class="month-block-hdr m3">March 2026</div>
+      <div class="month-cards">
+        <div class="mc-item mc-prs"><div class="mc-val" id="mc-2026-03-prs">—</div><div class="mc-lbl">PRs Reviewed</div></div>
+        <div class="mc-item mc-apr"><div class="mc-val" id="mc-2026-03-apr">—</div><div class="mc-lbl">Approved</div><div class="mc-sub" id="mc-2026-03-apct">—</div></div>
+        <div class="mc-item mc-com"><div class="mc-val" id="mc-2026-03-com">—</div><div class="mc-lbl">Comments</div></div>
+        <div class="mc-item mc-cr" ><div class="mc-val" id="mc-2026-03-cr" >—</div><div class="mc-lbl">Changes Req.</div></div>
+      </div>
+    </div>
+    <!-- Apr 2026 -->
+    <div class="month-block">
+      <div class="month-block-hdr m4">April 2026</div>
+      <div class="month-cards">
+        <div class="mc-item mc-prs"><div class="mc-val" id="mc-2026-04-prs">—</div><div class="mc-lbl">PRs Reviewed</div></div>
+        <div class="mc-item mc-apr"><div class="mc-val" id="mc-2026-04-apr">—</div><div class="mc-lbl">Approved</div><div class="mc-sub" id="mc-2026-04-apct">—</div></div>
+        <div class="mc-item mc-com"><div class="mc-val" id="mc-2026-04-com">—</div><div class="mc-lbl">Comments</div></div>
+        <div class="mc-item mc-cr" ><div class="mc-val" id="mc-2026-04-cr" >—</div><div class="mc-lbl">Changes Req.</div></div>
+      </div>
+    </div>
+    <!-- May 2026 -->
+    <div class="month-block">
+      <div class="month-block-hdr m5">May 2026</div>
+      <div class="month-cards">
+        <div class="mc-item mc-prs"><div class="mc-val" id="mc-2026-05-prs">—</div><div class="mc-lbl">PRs Reviewed</div></div>
+        <div class="mc-item mc-apr"><div class="mc-val" id="mc-2026-05-apr">—</div><div class="mc-lbl">Approved</div><div class="mc-sub" id="mc-2026-05-apct">—</div></div>
+        <div class="mc-item mc-com"><div class="mc-val" id="mc-2026-05-com">—</div><div class="mc-lbl">Comments</div></div>
+        <div class="mc-item mc-cr" ><div class="mc-val" id="mc-2026-05-cr" >—</div><div class="mc-lbl">Changes Req.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Toolbar ── -->
+  <div class="slbl">Detailed Table</div>
+  <div class="toolbar">
+    <span class="tlbl">&#128100; User:</span>
+    <select id="usel" onchange="applyFilter()">
+      <option value="all">All Users (16)</option>
+      <option>KirubakaranRBB</option><option>ramanidharanr</option>
+      <option>PriyadarshiniSaravanan</option><option>Subashree-b</option>
+      <option>AsmirKhan7</option><option>Teja603</option>
+      <option>nravikumar-bbdn</option><option>akash05-bb</option>
+      <option>MohamedTharik8883</option><option>BharathiKannaa</option>
+      <option>tsyed-bbdn</option><option>bhuvaneswarisbb</option>
+      <option>Hariharan-r-k</option><option>Anshu972438</option>
+      <option>kesavanazhagarsamy</option><option>manoharan100</option>
+    </select>
+    <span class="tlbl">&#128467; Month:</span>
+    <select id="msel" onchange="applyFilter()">
+      <option value="all">All Months (Overall)</option>
+      <option value="2026-01">January 2026</option>
+      <option value="2026-02">February 2026</option>
+      <option value="2026-03">March 2026</option>
+      <option value="2026-04">April 2026</option>
+      <option value="2026-05">May 2026</option>
+    </select>
+    <span class="rinfo">Showing <strong id="rcount">16</strong> of 16 users</span>
+    <button class="btn btn-e" onclick="exportCSV()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>Export CSV
+    </button>
+  </div>
+
+  <!-- ── Table ── -->
+  <div class="tbl-wrap">
+  <table id="mainTbl">
+    <thead>
+      <tr>
+        <th class="user-hdr" rowspan="2">Reviewer</th>
+        <th class="mgrp" colspan="7" data-m="2026-01">Jan 2026</th>
+        <th class="mgrp" colspan="7" data-m="2026-02">Feb 2026</th>
+        <th class="mgrp" colspan="7" data-m="2026-03">Mar 2026</th>
+        <th class="mgrp" colspan="7" data-m="2026-04">Apr 2026</th>
+        <th class="mgrp" colspan="7" data-m="2026-05">May 2026</th>
+        <th class="tot-hdr" colspan="8">Total (Jan–May 2026)</th>
+        <th class="rec-hdr" rowspan="2">&#128161; Recommended Actions</th>
+      </tr>
+      <tr>
+        <th class="sh" data-m="2026-01">PRs</th><th class="sh" data-m="2026-01">Approved</th><th class="sh" data-m="2026-01">CR</th><th class="sh" data-m="2026-01">Comments</th><th class="sh" data-m="2026-01">Nitpick</th><th class="sh" data-m="2026-01">Functional</th><th class="sh" data-m="2026-01">Technical</th>
+        <th class="sh" data-m="2026-02">PRs</th><th class="sh" data-m="2026-02">Approved</th><th class="sh" data-m="2026-02">CR</th><th class="sh" data-m="2026-02">Comments</th><th class="sh" data-m="2026-02">Nitpick</th><th class="sh" data-m="2026-02">Functional</th><th class="sh" data-m="2026-02">Technical</th>
+        <th class="sh" data-m="2026-03">PRs</th><th class="sh" data-m="2026-03">Approved</th><th class="sh" data-m="2026-03">CR</th><th class="sh" data-m="2026-03">Comments</th><th class="sh" data-m="2026-03">Nitpick</th><th class="sh" data-m="2026-03">Functional</th><th class="sh" data-m="2026-03">Technical</th>
+        <th class="sh" data-m="2026-04">PRs</th><th class="sh" data-m="2026-04">Approved</th><th class="sh" data-m="2026-04">CR</th><th class="sh" data-m="2026-04">Comments</th><th class="sh" data-m="2026-04">Nitpick</th><th class="sh" data-m="2026-04">Functional</th><th class="sh" data-m="2026-04">Technical</th>
+        <th class="sh" data-m="2026-05">PRs</th><th class="sh" data-m="2026-05">Approved</th><th class="sh" data-m="2026-05">CR</th><th class="sh" data-m="2026-05">Comments</th><th class="sh" data-m="2026-05">Nitpick</th><th class="sh" data-m="2026-05">Functional</th><th class="sh" data-m="2026-05">Technical</th>
+        <th class="sh sh-tot">PRs</th><th class="sh sh-tot">Approved</th><th class="sh sh-tot">CR</th><th class="sh sh-tot">Comments</th><th class="sh sh-tot">Nitpick</th><th class="sh sh-tot">Functional</th><th class="sh sh-tot">Technical</th><th class="sh sh-tot">N·F·T Mix</th>
+      </tr>
+    </thead>
+    <tbody id="tblBody"></tbody>
+  </table>
+  </div>
+
+</div>
+
+<script>
+const MONTHS = ["2026-01","2026-02","2026-03","2026-04","2026-05"];
+const DATA   = [{"user": "KirubakaranRBB", "monthly": {"2026-01": {"prs": 5, "approved": 4, "cr": 2, "comments": 10, "nitpick": 4, "functional": 6, "technical": 0}, "2026-02": {"prs": 6, "approved": 4, "cr": 2, "comments": 25, "nitpick": 5, "functional": 15, "technical": 5}, "2026-03": {"prs": 19, "approved": 16, "cr": 4, "comments": 54, "nitpick": 32, "functional": 21, "technical": 1}, "2026-04": {"prs": 41, "approved": 39, "cr": 8, "comments": 98, "nitpick": 54, "functional": 40, "technical": 4}, "2026-05": {"prs": 44, "approved": 41, "cr": 10, "comments": 92, "nitpick": 45, "functional": 44, "technical": 3}}, "total_prs": 115, "total_approved": 104, "total_cr": 26, "total_comments": 279, "total_nitpick": 140, "total_functional": 126, "total_technical": 13, "apr_pct": 90, "avg_com": 2.4, "recs": [{"label": "Strong Review Volume", "detail": "115 PRs reviewed \u2014 above team average. Maintain consistency and depth over quantity.", "color": "green"}, {"label": "Active Commenter", "detail": "2.4 comments/PR \u2014 good engagement. Focus on ensuring comments are actionable.", "color": "green"}, {"label": "Strong Functional Coverage", "detail": "45% Functional comments \u2014 effectively catching bugs and logic issues. Excellent quality.", "color": "green"}, {"label": "Add Technical Perspective", "detail": "Only 13 Technical comments (5%). Start evaluating PRs for performance, security and design patterns.", "color": "amber"}]}, {"user": "ramanidharanr", "monthly": {"2026-01": {"prs": 5, "approved": 4, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-02": {"prs": 5, "approved": 4, "cr": 2, "comments": 9, "nitpick": 1, "functional": 8, "technical": 0}, "2026-03": {"prs": 0, "approved": 0, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-04": {"prs": 3, "approved": 3, "cr": 0, "comments": 2, "nitpick": 0, "functional": 2, "technical": 0}, "2026-05": {"prs": 2, "approved": 2, "cr": 0, "comments": 2, "nitpick": 1, "functional": 1, "technical": 0}}, "total_prs": 15, "total_approved": 13, "total_cr": 2, "total_comments": 13, "total_nitpick": 2, "total_functional": 11, "total_technical": 0, "apr_pct": 87, "avg_com": 0.9, "recs": [{"label": "Below-Average Review Activity", "detail": "15 PRs reviewed vs team avg 48. Increase review cadence to 2\u20133 PRs per week.", "color": "amber"}, {"label": "Increase Comment Depth", "detail": "0.9 comments/PR. Target 2\u20133 meaningful comments per review to improve code quality feedback.", "color": "amber"}, {"label": "Strong Functional Coverage", "detail": "85% Functional comments \u2014 effectively catching bugs and logic issues. Excellent quality.", "color": "green"}, {"label": "Add Technical Perspective", "detail": "Only 0 Technical comments (0%). Start evaluating PRs for performance, security and design patterns.", "color": "amber"}]}, {"user": "PriyadarshiniSaravanan", "monthly": {"2026-01": {"prs": 2, "approved": 2, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-02": {"prs": 1, "approved": 1, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-03": {"prs": 5, "approved": 5, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-04": {"prs": 4, "approved": 3, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-05": {"prs": 7, "approved": 7, "cr": 0, "comments": 4, "nitpick": 1, "functional": 3, "technical": 0}}, "total_prs": 19, "total_approved": 18, "total_cr": 0, "total_comments": 4, "total_nitpick": 1, "total_functional": 3, "total_technical": 0, "apr_pct": 95, "avg_com": 0.2, "recs": [{"label": "Below-Average Review Activity", "detail": "19 PRs reviewed vs team avg 48. Increase review cadence to 2\u20133 PRs per week.", "color": "amber"}, {"label": "Shallow Reviews \u2014 Add More Comments", "detail": "Only 0.2 comments/PR on average. Add specific inline comments to highlight issues and share knowledge.", "color": "red"}, {"label": "Strong Functional Coverage", "detail": "75% Functional comments \u2014 effectively catching bugs and logic issues. Excellent quality.", "color": "green"}]}, {"user": "Subashree-b", "monthly": {"2026-01": {"prs": 8, "approved": 7, "cr": 2, "comments": 6, "nitpick": 3, "functional": 3, "technical": 0}, "2026-02": {"prs": 5, "approved": 5, "cr": 2, "comments": 3, "nitpick": 1, "functional": 2, "technical": 0}, "2026-03": {"prs": 8, "approved": 8, "cr": 2, "comments": 6, "nitpick": 3, "functional": 3, "technical": 0}, "2026-04": {"prs": 39, "approved": 39, "cr": 7, "comments": 13, "nitpick": 4, "functional": 9, "technical": 0}, "2026-05": {"prs": 22, "approved": 22, "cr": 1, "comments": 9, "nitpick": 2, "functional": 6, "technical": 1}}, "total_prs": 82, "total_approved": 81, "total_cr": 14, "total_comments": 37, "total_nitpick": 13, "total_functional": 23, "total_technical": 1, "apr_pct": 99, "avg_com": 0.5, "recs": [{"label": "Strong Review Volume", "detail": "82 PRs reviewed \u2014 above team average. Maintain consistency and depth over quantity.", "color": "green"}, {"label": "Shallow Reviews \u2014 Add More Comments", "detail": "Only 0.5 comments/PR on average. Add specific inline comments to highlight issues and share knowledge.", "color": "red"}, {"label": "Strong Functional Coverage", "detail": "62% Functional comments \u2014 effectively catching bugs and logic issues. Excellent quality.", "color": "green"}, {"label": "Add Technical Perspective", "detail": "Only 1 Technical comments (3%). Start evaluating PRs for performance, security and design patterns.", "color": "amber"}]}, {"user": "AsmirKhan7", "monthly": {"2026-01": {"prs": 2, "approved": 2, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-02": {"prs": 0, "approved": 0, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-03": {"prs": 3, "approved": 3, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-04": {"prs": 3, "approved": 3, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-05": {"prs": 1, "approved": 1, "cr": 0, "comments": 1, "nitpick": 0, "functional": 1, "technical": 0}}, "total_prs": 9, "total_approved": 9, "total_cr": 0, "total_comments": 1, "total_nitpick": 0, "total_functional": 1, "total_technical": 0, "apr_pct": 100, "avg_com": 0.1, "recs": [{"label": "Below-Average Review Activity", "detail": "9 PRs reviewed vs team avg 48. Increase review cadence to 2\u20133 PRs per week.", "color": "amber"}, {"label": "Shallow Reviews \u2014 Add More Comments", "detail": "Only 0.1 comments/PR on average. Add specific inline comments to highlight issues and share knowledge.", "color": "red"}, {"label": "Strong Functional Coverage", "detail": "100% Functional comments \u2014 effectively catching bugs and logic issues. Excellent quality.", "color": "green"}]}, {"user": "Teja603", "monthly": {"2026-01": {"prs": 0, "approved": 0, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-02": {"prs": 0, "approved": 0, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-03": {"prs": 0, "approved": 0, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-04": {"prs": 0, "approved": 0, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-05": {"prs": 3, "approved": 2, "cr": 0, "comments": 4, "nitpick": 1, "functional": 2, "technical": 1}}, "total_prs": 3, "total_approved": 2, "total_cr": 0, "total_comments": 4, "total_nitpick": 1, "total_functional": 2, "total_technical": 1, "apr_pct": 67, "avg_com": 1.3, "recs": [{"label": "Low Review Volume", "detail": "Only 3 PRs reviewed in 5 months. Aim for at least 10+ PRs/month to stay engaged with team progress.", "color": "red"}, {"label": "Increase Comment Depth", "detail": "1.3 comments/PR. Target 2\u20133 meaningful comments per review to improve code quality feedback.", "color": "amber"}, {"label": "Strong Functional Coverage", "detail": "50% Functional comments \u2014 effectively catching bugs and logic issues. Excellent quality.", "color": "green"}, {"label": "Good Technical Depth", "detail": "25% Technical comments \u2014 raising architecture, performance and security concerns. Keep it up.", "color": "green"}]}, {"user": "nravikumar-bbdn", "monthly": {"2026-01": {"prs": 9, "approved": 9, "cr": 0, "comments": 5, "nitpick": 5, "functional": 0, "technical": 0}, "2026-02": {"prs": 22, "approved": 21, "cr": 0, "comments": 7, "nitpick": 3, "functional": 4, "technical": 0}, "2026-03": {"prs": 22, "approved": 17, "cr": 0, "comments": 16, "nitpick": 9, "functional": 6, "technical": 1}, "2026-04": {"prs": 33, "approved": 32, "cr": 2, "comments": 36, "nitpick": 14, "functional": 22, "technical": 0}, "2026-05": {"prs": 24, "approved": 23, "cr": 3, "comments": 8, "nitpick": 5, "functional": 3, "technical": 0}}, "total_prs": 110, "total_approved": 102, "total_cr": 5, "total_comments": 72, "total_nitpick": 36, "total_functional": 35, "total_technical": 1, "apr_pct": 93, "avg_com": 0.7, "recs": [{"label": "Strong Review Volume", "detail": "110 PRs reviewed \u2014 above team average. Maintain consistency and depth over quantity.", "color": "green"}, {"label": "Increase Comment Depth", "detail": "0.7 comments/PR. Target 2\u20133 meaningful comments per review to improve code quality feedback.", "color": "amber"}, {"label": "Strong Functional Coverage", "detail": "49% Functional comments \u2014 effectively catching bugs and logic issues. Excellent quality.", "color": "green"}, {"label": "Add Technical Perspective", "detail": "Only 1 Technical comments (1%). Start evaluating PRs for performance, security and design patterns.", "color": "amber"}]}, {"user": "akash05-bb", "monthly": {"2026-01": {"prs": 0, "approved": 0, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-02": {"prs": 0, "approved": 0, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-03": {"prs": 2, "approved": 2, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-04": {"prs": 6, "approved": 6, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-05": {"prs": 2, "approved": 2, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}}, "total_prs": 10, "total_approved": 10, "total_cr": 0, "total_comments": 0, "total_nitpick": 0, "total_functional": 0, "total_technical": 0, "apr_pct": 100, "avg_com": 0.0, "recs": [{"label": "Below-Average Review Activity", "detail": "10 PRs reviewed vs team avg 48. Increase review cadence to 2\u20133 PRs per week.", "color": "amber"}, {"label": "Shallow Reviews \u2014 Add More Comments", "detail": "Only 0.0 comments/PR on average. Add specific inline comments to highlight issues and share knowledge.", "color": "red"}]}, {"user": "MohamedTharik8883", "monthly": {"2026-01": {"prs": 8, "approved": 8, "cr": 1, "comments": 5, "nitpick": 4, "functional": 1, "technical": 0}, "2026-02": {"prs": 12, "approved": 12, "cr": 0, "comments": 1, "nitpick": 1, "functional": 0, "technical": 0}, "2026-03": {"prs": 15, "approved": 13, "cr": 0, "comments": 12, "nitpick": 7, "functional": 4, "technical": 1}, "2026-04": {"prs": 18, "approved": 18, "cr": 0, "comments": 5, "nitpick": 3, "functional": 2, "technical": 0}, "2026-05": {"prs": 12, "approved": 12, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}}, "total_prs": 65, "total_approved": 63, "total_cr": 1, "total_comments": 23, "total_nitpick": 15, "total_functional": 7, "total_technical": 1, "apr_pct": 97, "avg_com": 0.4, "recs": [{"label": "Strong Review Volume", "detail": "65 PRs reviewed \u2014 above team average. Maintain consistency and depth over quantity.", "color": "green"}, {"label": "Shallow Reviews \u2014 Add More Comments", "detail": "Only 0.4 comments/PR on average. Add specific inline comments to highlight issues and share knowledge.", "color": "red"}, {"label": "Shift Focus from Style to Logic", "detail": "65% Nitpick comments. While style matters, invest more in Functional/Technical reviews that catch bugs and design issues.", "color": "amber"}, {"label": "Add Technical Perspective", "detail": "Only 1 Technical comments (4%). Start evaluating PRs for performance, security and design patterns.", "color": "amber"}]}, {"user": "BharathiKannaa", "monthly": {"2026-01": {"prs": 8, "approved": 8, "cr": 0, "comments": 3, "nitpick": 2, "functional": 1, "technical": 0}, "2026-02": {"prs": 11, "approved": 11, "cr": 0, "comments": 1, "nitpick": 0, "functional": 1, "technical": 0}, "2026-03": {"prs": 17, "approved": 17, "cr": 0, "comments": 1, "nitpick": 0, "functional": 1, "technical": 0}, "2026-04": {"prs": 14, "approved": 14, "cr": 1, "comments": 1, "nitpick": 0, "functional": 1, "technical": 0}, "2026-05": {"prs": 15, "approved": 13, "cr": 0, "comments": 20, "nitpick": 17, "functional": 2, "technical": 1}}, "total_prs": 65, "total_approved": 63, "total_cr": 1, "total_comments": 26, "total_nitpick": 19, "total_functional": 6, "total_technical": 1, "apr_pct": 97, "avg_com": 0.4, "recs": [{"label": "Strong Review Volume", "detail": "65 PRs reviewed \u2014 above team average. Maintain consistency and depth over quantity.", "color": "green"}, {"label": "Shallow Reviews \u2014 Add More Comments", "detail": "Only 0.4 comments/PR on average. Add specific inline comments to highlight issues and share knowledge.", "color": "red"}, {"label": "Shift Focus from Style to Logic", "detail": "73% Nitpick comments. While style matters, invest more in Functional/Technical reviews that catch bugs and design issues.", "color": "amber"}, {"label": "Add Technical Perspective", "detail": "Only 1 Technical comments (4%). Start evaluating PRs for performance, security and design patterns.", "color": "amber"}]}, {"user": "tsyed-bbdn", "monthly": {"2026-01": {"prs": 11, "approved": 11, "cr": 1, "comments": 6, "nitpick": 4, "functional": 2, "technical": 0}, "2026-02": {"prs": 8, "approved": 8, "cr": 0, "comments": 1, "nitpick": 0, "functional": 1, "technical": 0}, "2026-03": {"prs": 12, "approved": 11, "cr": 0, "comments": 1, "nitpick": 0, "functional": 1, "technical": 0}, "2026-04": {"prs": 8, "approved": 8, "cr": 0, "comments": 8, "nitpick": 5, "functional": 3, "technical": 0}, "2026-05": {"prs": 9, "approved": 9, "cr": 0, "comments": 1, "nitpick": 1, "functional": 0, "technical": 0}}, "total_prs": 48, "total_approved": 47, "total_cr": 1, "total_comments": 17, "total_nitpick": 10, "total_functional": 7, "total_technical": 0, "apr_pct": 98, "avg_com": 0.4, "recs": [{"label": "Good Review Cadence", "detail": "48 PRs reviewed \u2014 on par with team average of 48. Keep the momentum.", "color": "green"}, {"label": "Shallow Reviews \u2014 Add More Comments", "detail": "Only 0.4 comments/PR on average. Add specific inline comments to highlight issues and share knowledge.", "color": "red"}, {"label": "Strong Functional Coverage", "detail": "41% Functional comments \u2014 effectively catching bugs and logic issues. Excellent quality.", "color": "green"}, {"label": "Add Technical Perspective", "detail": "Only 0 Technical comments (0%). Start evaluating PRs for performance, security and design patterns.", "color": "amber"}]}, {"user": "bhuvaneswarisbb", "monthly": {"2026-01": {"prs": 8, "approved": 8, "cr": 0, "comments": 3, "nitpick": 1, "functional": 2, "technical": 0}, "2026-02": {"prs": 8, "approved": 8, "cr": 0, "comments": 10, "nitpick": 6, "functional": 2, "technical": 2}, "2026-03": {"prs": 14, "approved": 14, "cr": 0, "comments": 8, "nitpick": 6, "functional": 2, "technical": 0}, "2026-04": {"prs": 11, "approved": 11, "cr": 0, "comments": 3, "nitpick": 2, "functional": 1, "technical": 0}, "2026-05": {"prs": 10, "approved": 10, "cr": 0, "comments": 3, "nitpick": 3, "functional": 0, "technical": 0}}, "total_prs": 51, "total_approved": 51, "total_cr": 0, "total_comments": 27, "total_nitpick": 18, "total_functional": 7, "total_technical": 2, "apr_pct": 100, "avg_com": 0.5, "recs": [{"label": "Good Review Cadence", "detail": "51 PRs reviewed \u2014 on par with team average of 48. Keep the momentum.", "color": "green"}, {"label": "Increase Comment Depth", "detail": "0.5 comments/PR. Target 2\u20133 meaningful comments per review to improve code quality feedback.", "color": "amber"}, {"label": "Shift Focus from Style to Logic", "detail": "67% Nitpick comments. While style matters, invest more in Functional/Technical reviews that catch bugs and design issues.", "color": "amber"}, {"label": "Use 'Request Changes' More", "detail": "0 Changes Requested despite 27 comments. Use GitHub's 'Request Changes' formally so authors know re-review is needed.", "color": "amber"}]}, {"user": "Hariharan-r-k", "monthly": {"2026-01": {"prs": 14, "approved": 14, "cr": 0, "comments": 3, "nitpick": 3, "functional": 0, "technical": 0}, "2026-02": {"prs": 11, "approved": 11, "cr": 0, "comments": 5, "nitpick": 4, "functional": 1, "technical": 0}, "2026-03": {"prs": 14, "approved": 13, "cr": 0, "comments": 5, "nitpick": 3, "functional": 2, "technical": 0}, "2026-04": {"prs": 8, "approved": 8, "cr": 0, "comments": 2, "nitpick": 0, "functional": 1, "technical": 1}, "2026-05": {"prs": 10, "approved": 10, "cr": 1, "comments": 6, "nitpick": 3, "functional": 3, "technical": 0}}, "total_prs": 57, "total_approved": 56, "total_cr": 1, "total_comments": 21, "total_nitpick": 13, "total_functional": 7, "total_technical": 1, "apr_pct": 98, "avg_com": 0.4, "recs": [{"label": "Good Review Cadence", "detail": "57 PRs reviewed \u2014 on par with team average of 48. Keep the momentum.", "color": "green"}, {"label": "Shallow Reviews \u2014 Add More Comments", "detail": "Only 0.4 comments/PR on average. Add specific inline comments to highlight issues and share knowledge.", "color": "red"}, {"label": "Add Technical Perspective", "detail": "Only 1 Technical comments (5%). Start evaluating PRs for performance, security and design patterns.", "color": "amber"}, {"label": "Assertive Reviewer", "detail": "Requested changes 1 times \u2014 proactively blocking incomplete code. Good practice.", "color": "green"}]}, {"user": "Anshu972438", "monthly": {"2026-01": {"prs": 4, "approved": 4, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-02": {"prs": 6, "approved": 6, "cr": 0, "comments": 3, "nitpick": 2, "functional": 1, "technical": 0}, "2026-03": {"prs": 10, "approved": 10, "cr": 0, "comments": 1, "nitpick": 0, "functional": 1, "technical": 0}, "2026-04": {"prs": 7, "approved": 7, "cr": 0, "comments": 2, "nitpick": 1, "functional": 1, "technical": 0}, "2026-05": {"prs": 10, "approved": 10, "cr": 0, "comments": 4, "nitpick": 1, "functional": 2, "technical": 1}}, "total_prs": 37, "total_approved": 37, "total_cr": 0, "total_comments": 10, "total_nitpick": 4, "total_functional": 5, "total_technical": 1, "apr_pct": 100, "avg_com": 0.3, "recs": [{"label": "Good Review Cadence", "detail": "37 PRs reviewed \u2014 on par with team average of 48. Keep the momentum.", "color": "green"}, {"label": "Shallow Reviews \u2014 Add More Comments", "detail": "Only 0.3 comments/PR on average. Add specific inline comments to highlight issues and share knowledge.", "color": "red"}, {"label": "Strong Functional Coverage", "detail": "50% Functional comments \u2014 effectively catching bugs and logic issues. Excellent quality.", "color": "green"}, {"label": "Use 'Request Changes' More", "detail": "0 Changes Requested despite 10 comments. Use GitHub's 'Request Changes' formally so authors know re-review is needed.", "color": "amber"}]}, {"user": "kesavanazhagarsamy", "monthly": {"2026-01": {"prs": 6, "approved": 6, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-02": {"prs": 8, "approved": 8, "cr": 0, "comments": 5, "nitpick": 3, "functional": 0, "technical": 2}, "2026-03": {"prs": 10, "approved": 10, "cr": 0, "comments": 1, "nitpick": 0, "functional": 1, "technical": 0}, "2026-04": {"prs": 8, "approved": 8, "cr": 0, "comments": 2, "nitpick": 1, "functional": 1, "technical": 0}, "2026-05": {"prs": 8, "approved": 8, "cr": 0, "comments": 1, "nitpick": 0, "functional": 0, "technical": 1}}, "total_prs": 40, "total_approved": 40, "total_cr": 0, "total_comments": 9, "total_nitpick": 4, "total_functional": 2, "total_technical": 3, "apr_pct": 100, "avg_com": 0.2, "recs": [{"label": "Good Review Cadence", "detail": "40 PRs reviewed \u2014 on par with team average of 48. Keep the momentum.", "color": "green"}, {"label": "Shallow Reviews \u2014 Add More Comments", "detail": "Only 0.2 comments/PR on average. Add specific inline comments to highlight issues and share knowledge.", "color": "red"}, {"label": "Good Technical Depth", "detail": "33% Technical comments \u2014 raising architecture, performance and security concerns. Keep it up.", "color": "green"}, {"label": "Use 'Request Changes' More", "detail": "0 Changes Requested despite 9 comments. Use GitHub's 'Request Changes' formally so authors know re-review is needed.", "color": "amber"}]}, {"user": "manoharan100", "monthly": {"2026-01": {"prs": 9, "approved": 9, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-02": {"prs": 9, "approved": 9, "cr": 0, "comments": 1, "nitpick": 1, "functional": 0, "technical": 0}, "2026-03": {"prs": 6, "approved": 6, "cr": 0, "comments": 1, "nitpick": 1, "functional": 0, "technical": 0}, "2026-04": {"prs": 6, "approved": 6, "cr": 0, "comments": 0, "nitpick": 0, "functional": 0, "technical": 0}, "2026-05": {"prs": 15, "approved": 15, "cr": 0, "comments": 1, "nitpick": 0, "functional": 0, "technical": 1}}, "total_prs": 45, "total_approved": 45, "total_cr": 0, "total_comments": 3, "total_nitpick": 2, "total_functional": 0, "total_technical": 1, "apr_pct": 100, "avg_com": 0.1, "recs": [{"label": "Good Review Cadence", "detail": "45 PRs reviewed \u2014 on par with team average of 48. Keep the momentum.", "color": "green"}, {"label": "Shallow Reviews \u2014 Add More Comments", "detail": "Only 0.1 comments/PR on average. Add specific inline comments to highlight issues and share knowledge.", "color": "red"}, {"label": "Good Technical Depth", "detail": "33% Technical comments \u2014 raising architecture, performance and security concerns. Keep it up.", "color": "green"}]}];
+const CSV_DATA = [{"user": "KirubakaranRBB", "Jan_PRs_Reviewed": 5, "Jan_Approved": 4, "Jan_CR": 2, "Jan_Comments": 10, "Jan_Nitpick": 4, "Jan_Functional": 6, "Jan_Technical": 0, "Feb_PRs_Reviewed": 6, "Feb_Approved": 4, "Feb_CR": 2, "Feb_Comments": 25, "Feb_Nitpick": 5, "Feb_Functional": 15, "Feb_Technical": 5, "Mar_PRs_Reviewed": 19, "Mar_Approved": 16, "Mar_CR": 4, "Mar_Comments": 54, "Mar_Nitpick": 32, "Mar_Functional": 21, "Mar_Technical": 1, "Apr_PRs_Reviewed": 41, "Apr_Approved": 39, "Apr_CR": 8, "Apr_Comments": 98, "Apr_Nitpick": 54, "Apr_Functional": 40, "Apr_Technical": 4, "May_PRs_Reviewed": 44, "May_Approved": 41, "May_CR": 10, "May_Comments": 92, "May_Nitpick": 45, "May_Functional": 44, "May_Technical": 3, "Total_PRs": 115, "Total_Approved": 104, "Total_CR": 26, "Total_Comments": 279, "Total_Nitpick": 140, "Total_Functional": 126, "Total_Technical": 13}, {"user": "ramanidharanr", "Jan_PRs_Reviewed": 5, "Jan_Approved": 4, "Jan_CR": 0, "Jan_Comments": 0, "Jan_Nitpick": 0, "Jan_Functional": 0, "Jan_Technical": 0, "Feb_PRs_Reviewed": 5, "Feb_Approved": 4, "Feb_CR": 2, "Feb_Comments": 9, "Feb_Nitpick": 1, "Feb_Functional": 8, "Feb_Technical": 0, "Mar_PRs_Reviewed": 0, "Mar_Approved": 0, "Mar_CR": 0, "Mar_Comments": 0, "Mar_Nitpick": 0, "Mar_Functional": 0, "Mar_Technical": 0, "Apr_PRs_Reviewed": 3, "Apr_Approved": 3, "Apr_CR": 0, "Apr_Comments": 2, "Apr_Nitpick": 0, "Apr_Functional": 2, "Apr_Technical": 0, "May_PRs_Reviewed": 2, "May_Approved": 2, "May_CR": 0, "May_Comments": 2, "May_Nitpick": 1, "May_Functional": 1, "May_Technical": 0, "Total_PRs": 15, "Total_Approved": 13, "Total_CR": 2, "Total_Comments": 13, "Total_Nitpick": 2, "Total_Functional": 11, "Total_Technical": 0}, {"user": "PriyadarshiniSaravanan", "Jan_PRs_Reviewed": 2, "Jan_Approved": 2, "Jan_CR": 0, "Jan_Comments": 0, "Jan_Nitpick": 0, "Jan_Functional": 0, "Jan_Technical": 0, "Feb_PRs_Reviewed": 1, "Feb_Approved": 1, "Feb_CR": 0, "Feb_Comments": 0, "Feb_Nitpick": 0, "Feb_Functional": 0, "Feb_Technical": 0, "Mar_PRs_Reviewed": 5, "Mar_Approved": 5, "Mar_CR": 0, "Mar_Comments": 0, "Mar_Nitpick": 0, "Mar_Functional": 0, "Mar_Technical": 0, "Apr_PRs_Reviewed": 4, "Apr_Approved": 3, "Apr_CR": 0, "Apr_Comments": 0, "Apr_Nitpick": 0, "Apr_Functional": 0, "Apr_Technical": 0, "May_PRs_Reviewed": 7, "May_Approved": 7, "May_CR": 0, "May_Comments": 4, "May_Nitpick": 1, "May_Functional": 3, "May_Technical": 0, "Total_PRs": 19, "Total_Approved": 18, "Total_CR": 0, "Total_Comments": 4, "Total_Nitpick": 1, "Total_Functional": 3, "Total_Technical": 0}, {"user": "Subashree-b", "Jan_PRs_Reviewed": 8, "Jan_Approved": 7, "Jan_CR": 2, "Jan_Comments": 6, "Jan_Nitpick": 3, "Jan_Functional": 3, "Jan_Technical": 0, "Feb_PRs_Reviewed": 5, "Feb_Approved": 5, "Feb_CR": 2, "Feb_Comments": 3, "Feb_Nitpick": 1, "Feb_Functional": 2, "Feb_Technical": 0, "Mar_PRs_Reviewed": 8, "Mar_Approved": 8, "Mar_CR": 2, "Mar_Comments": 6, "Mar_Nitpick": 3, "Mar_Functional": 3, "Mar_Technical": 0, "Apr_PRs_Reviewed": 39, "Apr_Approved": 39, "Apr_CR": 7, "Apr_Comments": 13, "Apr_Nitpick": 4, "Apr_Functional": 9, "Apr_Technical": 0, "May_PRs_Reviewed": 22, "May_Approved": 22, "May_CR": 1, "May_Comments": 9, "May_Nitpick": 2, "May_Functional": 6, "May_Technical": 1, "Total_PRs": 82, "Total_Approved": 81, "Total_CR": 14, "Total_Comments": 37, "Total_Nitpick": 13, "Total_Functional": 23, "Total_Technical": 1}, {"user": "AsmirKhan7", "Jan_PRs_Reviewed": 2, "Jan_Approved": 2, "Jan_CR": 0, "Jan_Comments": 0, "Jan_Nitpick": 0, "Jan_Functional": 0, "Jan_Technical": 0, "Feb_PRs_Reviewed": 0, "Feb_Approved": 0, "Feb_CR": 0, "Feb_Comments": 0, "Feb_Nitpick": 0, "Feb_Functional": 0, "Feb_Technical": 0, "Mar_PRs_Reviewed": 3, "Mar_Approved": 3, "Mar_CR": 0, "Mar_Comments": 0, "Mar_Nitpick": 0, "Mar_Functional": 0, "Mar_Technical": 0, "Apr_PRs_Reviewed": 3, "Apr_Approved": 3, "Apr_CR": 0, "Apr_Comments": 0, "Apr_Nitpick": 0, "Apr_Functional": 0, "Apr_Technical": 0, "May_PRs_Reviewed": 1, "May_Approved": 1, "May_CR": 0, "May_Comments": 1, "May_Nitpick": 0, "May_Functional": 1, "May_Technical": 0, "Total_PRs": 9, "Total_Approved": 9, "Total_CR": 0, "Total_Comments": 1, "Total_Nitpick": 0, "Total_Functional": 1, "Total_Technical": 0}, {"user": "Teja603", "Jan_PRs_Reviewed": 0, "Jan_Approved": 0, "Jan_CR": 0, "Jan_Comments": 0, "Jan_Nitpick": 0, "Jan_Functional": 0, "Jan_Technical": 0, "Feb_PRs_Reviewed": 0, "Feb_Approved": 0, "Feb_CR": 0, "Feb_Comments": 0, "Feb_Nitpick": 0, "Feb_Functional": 0, "Feb_Technical": 0, "Mar_PRs_Reviewed": 0, "Mar_Approved": 0, "Mar_CR": 0, "Mar_Comments": 0, "Mar_Nitpick": 0, "Mar_Functional": 0, "Mar_Technical": 0, "Apr_PRs_Reviewed": 0, "Apr_Approved": 0, "Apr_CR": 0, "Apr_Comments": 0, "Apr_Nitpick": 0, "Apr_Functional": 0, "Apr_Technical": 0, "May_PRs_Reviewed": 3, "May_Approved": 2, "May_CR": 0, "May_Comments": 4, "May_Nitpick": 1, "May_Functional": 2, "May_Technical": 1, "Total_PRs": 3, "Total_Approved": 2, "Total_CR": 0, "Total_Comments": 4, "Total_Nitpick": 1, "Total_Functional": 2, "Total_Technical": 1}, {"user": "nravikumar-bbdn", "Jan_PRs_Reviewed": 9, "Jan_Approved": 9, "Jan_CR": 0, "Jan_Comments": 5, "Jan_Nitpick": 5, "Jan_Functional": 0, "Jan_Technical": 0, "Feb_PRs_Reviewed": 22, "Feb_Approved": 21, "Feb_CR": 0, "Feb_Comments": 7, "Feb_Nitpick": 3, "Feb_Functional": 4, "Feb_Technical": 0, "Mar_PRs_Reviewed": 22, "Mar_Approved": 17, "Mar_CR": 0, "Mar_Comments": 16, "Mar_Nitpick": 9, "Mar_Functional": 6, "Mar_Technical": 1, "Apr_PRs_Reviewed": 33, "Apr_Approved": 32, "Apr_CR": 2, "Apr_Comments": 36, "Apr_Nitpick": 14, "Apr_Functional": 22, "Apr_Technical": 0, "May_PRs_Reviewed": 24, "May_Approved": 23, "May_CR": 3, "May_Comments": 8, "May_Nitpick": 5, "May_Functional": 3, "May_Technical": 0, "Total_PRs": 110, "Total_Approved": 102, "Total_CR": 5, "Total_Comments": 72, "Total_Nitpick": 36, "Total_Functional": 35, "Total_Technical": 1}, {"user": "akash05-bb", "Jan_PRs_Reviewed": 0, "Jan_Approved": 0, "Jan_CR": 0, "Jan_Comments": 0, "Jan_Nitpick": 0, "Jan_Functional": 0, "Jan_Technical": 0, "Feb_PRs_Reviewed": 0, "Feb_Approved": 0, "Feb_CR": 0, "Feb_Comments": 0, "Feb_Nitpick": 0, "Feb_Functional": 0, "Feb_Technical": 0, "Mar_PRs_Reviewed": 2, "Mar_Approved": 2, "Mar_CR": 0, "Mar_Comments": 0, "Mar_Nitpick": 0, "Mar_Functional": 0, "Mar_Technical": 0, "Apr_PRs_Reviewed": 6, "Apr_Approved": 6, "Apr_CR": 0, "Apr_Comments": 0, "Apr_Nitpick": 0, "Apr_Functional": 0, "Apr_Technical": 0, "May_PRs_Reviewed": 2, "May_Approved": 2, "May_CR": 0, "May_Comments": 0, "May_Nitpick": 0, "May_Functional": 0, "May_Technical": 0, "Total_PRs": 10, "Total_Approved": 10, "Total_CR": 0, "Total_Comments": 0, "Total_Nitpick": 0, "Total_Functional": 0, "Total_Technical": 0}, {"user": "MohamedTharik8883", "Jan_PRs_Reviewed": 8, "Jan_Approved": 8, "Jan_CR": 1, "Jan_Comments": 5, "Jan_Nitpick": 4, "Jan_Functional": 1, "Jan_Technical": 0, "Feb_PRs_Reviewed": 12, "Feb_Approved": 12, "Feb_CR": 0, "Feb_Comments": 1, "Feb_Nitpick": 1, "Feb_Functional": 0, "Feb_Technical": 0, "Mar_PRs_Reviewed": 15, "Mar_Approved": 13, "Mar_CR": 0, "Mar_Comments": 12, "Mar_Nitpick": 7, "Mar_Functional": 4, "Mar_Technical": 1, "Apr_PRs_Reviewed": 18, "Apr_Approved": 18, "Apr_CR": 0, "Apr_Comments": 5, "Apr_Nitpick": 3, "Apr_Functional": 2, "Apr_Technical": 0, "May_PRs_Reviewed": 12, "May_Approved": 12, "May_CR": 0, "May_Comments": 0, "May_Nitpick": 0, "May_Functional": 0, "May_Technical": 0, "Total_PRs": 65, "Total_Approved": 63, "Total_CR": 1, "Total_Comments": 23, "Total_Nitpick": 15, "Total_Functional": 7, "Total_Technical": 1}, {"user": "BharathiKannaa", "Jan_PRs_Reviewed": 8, "Jan_Approved": 8, "Jan_CR": 0, "Jan_Comments": 3, "Jan_Nitpick": 2, "Jan_Functional": 1, "Jan_Technical": 0, "Feb_PRs_Reviewed": 11, "Feb_Approved": 11, "Feb_CR": 0, "Feb_Comments": 1, "Feb_Nitpick": 0, "Feb_Functional": 1, "Feb_Technical": 0, "Mar_PRs_Reviewed": 17, "Mar_Approved": 17, "Mar_CR": 0, "Mar_Comments": 1, "Mar_Nitpick": 0, "Mar_Functional": 1, "Mar_Technical": 0, "Apr_PRs_Reviewed": 14, "Apr_Approved": 14, "Apr_CR": 1, "Apr_Comments": 1, "Apr_Nitpick": 0, "Apr_Functional": 1, "Apr_Technical": 0, "May_PRs_Reviewed": 15, "May_Approved": 13, "May_CR": 0, "May_Comments": 20, "May_Nitpick": 17, "May_Functional": 2, "May_Technical": 1, "Total_PRs": 65, "Total_Approved": 63, "Total_CR": 1, "Total_Comments": 26, "Total_Nitpick": 19, "Total_Functional": 6, "Total_Technical": 1}, {"user": "tsyed-bbdn", "Jan_PRs_Reviewed": 11, "Jan_Approved": 11, "Jan_CR": 1, "Jan_Comments": 6, "Jan_Nitpick": 4, "Jan_Functional": 2, "Jan_Technical": 0, "Feb_PRs_Reviewed": 8, "Feb_Approved": 8, "Feb_CR": 0, "Feb_Comments": 1, "Feb_Nitpick": 0, "Feb_Functional": 1, "Feb_Technical": 0, "Mar_PRs_Reviewed": 12, "Mar_Approved": 11, "Mar_CR": 0, "Mar_Comments": 1, "Mar_Nitpick": 0, "Mar_Functional": 1, "Mar_Technical": 0, "Apr_PRs_Reviewed": 8, "Apr_Approved": 8, "Apr_CR": 0, "Apr_Comments": 8, "Apr_Nitpick": 5, "Apr_Functional": 3, "Apr_Technical": 0, "May_PRs_Reviewed": 9, "May_Approved": 9, "May_CR": 0, "May_Comments": 1, "May_Nitpick": 1, "May_Functional": 0, "May_Technical": 0, "Total_PRs": 48, "Total_Approved": 47, "Total_CR": 1, "Total_Comments": 17, "Total_Nitpick": 10, "Total_Functional": 7, "Total_Technical": 0}, {"user": "bhuvaneswarisbb", "Jan_PRs_Reviewed": 8, "Jan_Approved": 8, "Jan_CR": 0, "Jan_Comments": 3, "Jan_Nitpick": 1, "Jan_Functional": 2, "Jan_Technical": 0, "Feb_PRs_Reviewed": 8, "Feb_Approved": 8, "Feb_CR": 0, "Feb_Comments": 10, "Feb_Nitpick": 6, "Feb_Functional": 2, "Feb_Technical": 2, "Mar_PRs_Reviewed": 14, "Mar_Approved": 14, "Mar_CR": 0, "Mar_Comments": 8, "Mar_Nitpick": 6, "Mar_Functional": 2, "Mar_Technical": 0, "Apr_PRs_Reviewed": 11, "Apr_Approved": 11, "Apr_CR": 0, "Apr_Comments": 3, "Apr_Nitpick": 2, "Apr_Functional": 1, "Apr_Technical": 0, "May_PRs_Reviewed": 10, "May_Approved": 10, "May_CR": 0, "May_Comments": 3, "May_Nitpick": 3, "May_Functional": 0, "May_Technical": 0, "Total_PRs": 51, "Total_Approved": 51, "Total_CR": 0, "Total_Comments": 27, "Total_Nitpick": 18, "Total_Functional": 7, "Total_Technical": 2}, {"user": "Hariharan-r-k", "Jan_PRs_Reviewed": 14, "Jan_Approved": 14, "Jan_CR": 0, "Jan_Comments": 3, "Jan_Nitpick": 3, "Jan_Functional": 0, "Jan_Technical": 0, "Feb_PRs_Reviewed": 11, "Feb_Approved": 11, "Feb_CR": 0, "Feb_Comments": 5, "Feb_Nitpick": 4, "Feb_Functional": 1, "Feb_Technical": 0, "Mar_PRs_Reviewed": 14, "Mar_Approved": 13, "Mar_CR": 0, "Mar_Comments": 5, "Mar_Nitpick": 3, "Mar_Functional": 2, "Mar_Technical": 0, "Apr_PRs_Reviewed": 8, "Apr_Approved": 8, "Apr_CR": 0, "Apr_Comments": 2, "Apr_Nitpick": 0, "Apr_Functional": 1, "Apr_Technical": 1, "May_PRs_Reviewed": 10, "May_Approved": 10, "May_CR": 1, "May_Comments": 6, "May_Nitpick": 3, "May_Functional": 3, "May_Technical": 0, "Total_PRs": 57, "Total_Approved": 56, "Total_CR": 1, "Total_Comments": 21, "Total_Nitpick": 13, "Total_Functional": 7, "Total_Technical": 1}, {"user": "Anshu972438", "Jan_PRs_Reviewed": 4, "Jan_Approved": 4, "Jan_CR": 0, "Jan_Comments": 0, "Jan_Nitpick": 0, "Jan_Functional": 0, "Jan_Technical": 0, "Feb_PRs_Reviewed": 6, "Feb_Approved": 6, "Feb_CR": 0, "Feb_Comments": 3, "Feb_Nitpick": 2, "Feb_Functional": 1, "Feb_Technical": 0, "Mar_PRs_Reviewed": 10, "Mar_Approved": 10, "Mar_CR": 0, "Mar_Comments": 1, "Mar_Nitpick": 0, "Mar_Functional": 1, "Mar_Technical": 0, "Apr_PRs_Reviewed": 7, "Apr_Approved": 7, "Apr_CR": 0, "Apr_Comments": 2, "Apr_Nitpick": 1, "Apr_Functional": 1, "Apr_Technical": 0, "May_PRs_Reviewed": 10, "May_Approved": 10, "May_CR": 0, "May_Comments": 4, "May_Nitpick": 1, "May_Functional": 2, "May_Technical": 1, "Total_PRs": 37, "Total_Approved": 37, "Total_CR": 0, "Total_Comments": 10, "Total_Nitpick": 4, "Total_Functional": 5, "Total_Technical": 1}, {"user": "kesavanazhagarsamy", "Jan_PRs_Reviewed": 6, "Jan_Approved": 6, "Jan_CR": 0, "Jan_Comments": 0, "Jan_Nitpick": 0, "Jan_Functional": 0, "Jan_Technical": 0, "Feb_PRs_Reviewed": 8, "Feb_Approved": 8, "Feb_CR": 0, "Feb_Comments": 5, "Feb_Nitpick": 3, "Feb_Functional": 0, "Feb_Technical": 2, "Mar_PRs_Reviewed": 10, "Mar_Approved": 10, "Mar_CR": 0, "Mar_Comments": 1, "Mar_Nitpick": 0, "Mar_Functional": 1, "Mar_Technical": 0, "Apr_PRs_Reviewed": 8, "Apr_Approved": 8, "Apr_CR": 0, "Apr_Comments": 2, "Apr_Nitpick": 1, "Apr_Functional": 1, "Apr_Technical": 0, "May_PRs_Reviewed": 8, "May_Approved": 8, "May_CR": 0, "May_Comments": 1, "May_Nitpick": 0, "May_Functional": 0, "May_Technical": 1, "Total_PRs": 40, "Total_Approved": 40, "Total_CR": 0, "Total_Comments": 9, "Total_Nitpick": 4, "Total_Functional": 2, "Total_Technical": 3}, {"user": "manoharan100", "Jan_PRs_Reviewed": 9, "Jan_Approved": 9, "Jan_CR": 0, "Jan_Comments": 0, "Jan_Nitpick": 0, "Jan_Functional": 0, "Jan_Technical": 0, "Feb_PRs_Reviewed": 9, "Feb_Approved": 9, "Feb_CR": 0, "Feb_Comments": 1, "Feb_Nitpick": 1, "Feb_Functional": 0, "Feb_Technical": 0, "Mar_PRs_Reviewed": 6, "Mar_Approved": 6, "Mar_CR": 0, "Mar_Comments": 1, "Mar_Nitpick": 1, "Mar_Functional": 0, "Mar_Technical": 0, "Apr_PRs_Reviewed": 6, "Apr_Approved": 6, "Apr_CR": 0, "Apr_Comments": 0, "Apr_Nitpick": 0, "Apr_Functional": 0, "Apr_Technical": 0, "May_PRs_Reviewed": 15, "May_Approved": 15, "May_CR": 0, "May_Comments": 1, "May_Nitpick": 0, "May_Functional": 0, "May_Technical": 1, "Total_PRs": 45, "Total_Approved": 45, "Total_CR": 0, "Total_Comments": 3, "Total_Nitpick": 2, "Total_Functional": 0, "Total_Technical": 1}];
+
+// ── render N/F/T mini bar ─────────────────────────────────────────────────────
+function nftBar(n,f,t){
+  const tot = n+f+t;
+  if(!tot) return '<span style="color:#cbd5e1">—</span>';
+  const np=Math.round(n/tot*100), fp=Math.round(f/tot*100), tp=100-np-fp;
+  return `<div class="n-bar"><span class="nb" style="width:${np}%"></span><span class="fb" style="width:${fp}%"></span><span class="tb" style="width:${tp}%"></span></div>
+          <div class="nft-tags"><span class="tg n">${n}N</span><span class="tg f">${f}F</span><span class="tg t">${t}T</span></div>`;
+}
+
+// ── render single user row ────────────────────────────────────────────────────
+function buildRow(d, mFilter){
+  const ms = mFilter === 'all' ? MONTHS : [mFilter];
+
+  // Month data cells (7 cols × shown months)
+  let mCells = '';
+  MONTHS.forEach(m => {
+    const md   = d.monthly[m];
+    const show = mFilter === 'all' || mFilter === m;
+    const vis  = show ? '' : ' style="display:none"';
+    if(!md.prs){
+      mCells += `<td${vis} data-m="${m}" class="zero" colspan="7">—</td>`;
+    } else {
+      mCells +=
+        `<td${vis} data-m="${m}" class="c-prs">${md.prs}</td>` +
+        `<td${vis} data-m="${m}" class="c-apr">${md.approved}<span class="apr-pct">${md.prs?Math.round(md.approved/md.prs*100):0}%</span></td>` +
+        `<td${vis} data-m="${m}" class="c-cr">${md.cr||'—'}</td>` +
+        `<td${vis} data-m="${m}" class="c-com">${md.comments||'—'}</td>` +
+        `<td${vis} data-m="${m}" class="c-nit">${md.nitpick||'—'}</td>` +
+        `<td${vis} data-m="${m}" class="c-fun">${md.functional||'—'}</td>` +
+        `<td${vis} data-m="${m}" class="c-tec">${md.technical||'—'}</td>`;
+    }
+  });
+
+  // Totals
+  const apr_p = d.total_prs ? Math.round(d.total_approved/d.total_prs*100) : 0;
+  const totCells =
+    `<td class="tot tot-prs">${d.total_prs}</td>` +
+    `<td class="tot tot-apr">${d.total_approved}<span class="apr-pct">${apr_p}%</span></td>` +
+    `<td class="tot tot-cr">${d.total_cr||'—'}</td>` +
+    `<td class="tot tot-com">${d.total_comments||'—'}<span class="sub">${d.avg_com}/PR</span></td>` +
+    `<td class="tot c-nit">${d.total_nitpick||'—'}</td>` +
+    `<td class="tot c-fun">${d.total_functional||'—'}</td>` +
+    `<td class="tot c-tec">${d.total_technical||'—'}</td>` +
+    `<td class="tot" style="min-width:105px">${nftBar(d.total_nitpick,d.total_functional,d.total_technical)}</td>`;
+
+  // Recommendations
+  const recHtml = d.recs.map(r =>
+    `<div class="rbadge ${r.color}">
+       <span class="rdot" style="background:${r.color==='green'?'#16a34a':r.color==='amber'?'#d97706':'#dc2626'}"></span>
+       <span><span class="rtitle">${r.label}</span><br><span style="color:var(--sub);font-size:.65rem">${r.detail}</span></span>
+     </div>`
+  ).join('');
+
+  return `<tr class="urow" data-user="${d.user}">
+    <td class="user-cell">
+      <div class="uav">${d.user[0].toUpperCase()}</div>
+      <div class="uname">${d.user}</div>
+    </td>
+    ${mCells}
+    ${totCells}
+    <td class="rec-cell">${recHtml}</td>
+  </tr>`;
+}
+
+// ── render footer (grand total) ───────────────────────────────────────────────
+function buildFooter(mFilter, visUsers){
+  const shown = visUsers.length ? visUsers : DATA;
+  const ms = mFilter === 'all' ? MONTHS : [mFilter];
+
+  let mCells = '';
+  MONTHS.forEach(m => {
+    const vis = mFilter === 'all' || mFilter === m ? '' : ' style="display:none"';
+    const gp  = shown.reduce((s,d)=>s+d.monthly[m].prs, 0);
+    const ga  = shown.reduce((s,d)=>s+d.monthly[m].approved, 0);
+    const gc  = shown.reduce((s,d)=>s+d.monthly[m].cr, 0);
+    const gco = shown.reduce((s,d)=>s+d.monthly[m].comments, 0);
+    const gn  = shown.reduce((s,d)=>s+d.monthly[m].nitpick, 0);
+    const gf  = shown.reduce((s,d)=>s+d.monthly[m].functional, 0);
+    const gt  = shown.reduce((s,d)=>s+d.monthly[m].technical, 0);
+    const ap  = gp ? Math.round(ga/gp*100) : 0;
+    if(!gp){
+      mCells += `<td${vis} data-m="${m}" class="zero" colspan="7">—</td>`;
+    } else {
+      mCells +=
+        `<td${vis} data-m="${m}" class="c-prs">${gp}</td>` +
+        `<td${vis} data-m="${m}" class="c-apr">${ga}<span class="apr-pct">${ap}%</span></td>` +
+        `<td${vis} data-m="${m}" class="c-cr">${gc||'—'}</td>` +
+        `<td${vis} data-m="${m}" class="c-com">${gco||'—'}</td>` +
+        `<td${vis} data-m="${m}" class="c-nit">${gn||'—'}</td>` +
+        `<td${vis} data-m="${m}" class="c-fun">${gf||'—'}</td>` +
+        `<td${vis} data-m="${m}" class="c-tec">${gt||'—'}</td>`;
+    }
+  });
+
+  const tp=shown.reduce((s,d)=>s+d.total_prs,0);
+  const ta=shown.reduce((s,d)=>s+d.total_approved,0);
+  const tc=shown.reduce((s,d)=>s+d.total_cr,0);
+  const tco=shown.reduce((s,d)=>s+d.total_comments,0);
+  const tn=shown.reduce((s,d)=>s+d.total_nitpick,0);
+  const tf=shown.reduce((s,d)=>s+d.total_functional,0);
+  const tt=shown.reduce((s,d)=>s+d.total_technical,0);
+  const tap=tp?Math.round(ta/tp*100):0;
+  const tavg=tp?(tco/tp).toFixed(1):0;
+
+  return `<tr class="footer-row">
+    <td class="user-cell"><strong>Total (${shown.length} Users)</strong></td>
+    ${mCells}
+    <td class="tot tot-prs">${tp}</td>
+    <td class="tot tot-apr">${ta}<span class="apr-pct">${tap}%</span></td>
+    <td class="tot tot-cr">${tc||'—'}</td>
+    <td class="tot tot-com">${tco||'—'}<span class="sub">${tavg}/PR</span></td>
+    <td class="tot c-nit">${tn||'—'}</td>
+    <td class="tot c-fun">${tf||'—'}</td>
+    <td class="tot c-tec">${tt||'—'}</td>
+    <td class="tot">${nftBar(tn,tf,tt)}</td>
+    <td class="rec-cell"></td>
+  </tr>`;
+}
+
+// ── update monthly cards ──────────────────────────────────────────────────────
+function updateMonthlyCards(vis){
+  MONTHS.forEach(m => {
+    const gp  = vis.reduce((s,d)=>s+d.monthly[m].prs,      0);
+    const ga  = vis.reduce((s,d)=>s+d.monthly[m].approved,  0);
+    const gco = vis.reduce((s,d)=>s+d.monthly[m].comments,  0);
+    const gc  = vis.reduce((s,d)=>s+d.monthly[m].cr,        0);
+    const ap  = gp ? Math.round(ga/gp*100) : 0;
+    document.getElementById(`mc-${m}-prs`).textContent  = gp  || '0';
+    document.getElementById(`mc-${m}-apr`).textContent  = ga  || '0';
+    document.getElementById(`mc-${m}-apct`).textContent = ap  + '% approved';
+    document.getElementById(`mc-${m}-com`).textContent  = gco || '0';
+    document.getElementById(`mc-${m}-cr`).textContent   = gc  || '0';
+  });
+}
+
+// ── update summary cards ──────────────────────────────────────────────────────
+function updateCards(visUsers, mFilter){
+  const shown = visUsers.length ? visUsers : DATA;
+  const ms = mFilter === 'all' ? MONTHS : [mFilter];
+  const tp  = shown.reduce((s,d)=>s+ms.reduce((ss,m)=>ss+d.monthly[m].prs,0),0);
+  const ta  = shown.reduce((s,d)=>s+ms.reduce((ss,m)=>ss+d.monthly[m].approved,0),0);
+  const tc  = shown.reduce((s,d)=>s+ms.reduce((ss,m)=>ss+d.monthly[m].cr,0),0);
+  const tco = shown.reduce((s,d)=>s+ms.reduce((ss,m)=>ss+d.monthly[m].comments,0),0);
+  const tn  = shown.reduce((s,d)=>s+ms.reduce((ss,m)=>ss+d.monthly[m].nitpick,0),0);
+  const tf  = shown.reduce((s,d)=>s+ms.reduce((ss,m)=>ss+d.monthly[m].functional,0),0);
+  const tt  = shown.reduce((s,d)=>s+ms.reduce((ss,m)=>ss+d.monthly[m].technical,0),0);
+  const ap  = tp ? Math.round(ta/tp*100) : 0;
+  const avg = tp ? (tco/tp).toFixed(1) : '0';
+  document.getElementById('sc-prs').textContent = tp;
+  document.getElementById('sc-apr').textContent = ta;
+  document.getElementById('sc-cr').textContent  = tc;
+  document.getElementById('sc-com').textContent = tco;
+  document.getElementById('sc-nit').textContent = tn;
+  document.getElementById('sc-fun').textContent = tf;
+  document.getElementById('sc-tec').textContent = tt;
+  document.getElementById('sc-apct').textContent= ap+'% rate';
+  document.getElementById('sc-avg').textContent = avg+' avg/PR';
+  document.getElementById('sc-usr').textContent = shown.length;
+}
+
+// ── apply filters ─────────────────────────────────────────────────────────────
+function applyFilter(){
+  const usel = document.getElementById('usel').value;
+  const msel = document.getElementById('msel').value;
+
+  // Filter users
+  const vis = usel === 'all' ? DATA : DATA.filter(d => d.user === usel);
+
+  // Rebuild tbody
+  const tbody = document.getElementById('tblBody');
+  tbody.innerHTML = vis.map(d => buildRow(d, msel)).join('') + buildFooter(msel, vis);
+
+  // Month column visibility on header
+  MONTHS.forEach(m => {
+    const show = msel === 'all' || msel === m;
+    document.querySelectorAll(`th[data-m="${m}"]`).forEach(th => th.style.display = show ? '' : 'none');
+  });
+
+  document.getElementById('rcount').textContent = vis.length;
+  updateCards(vis, msel);
+  updateMonthlyCards(vis);
+}
+
+// ── export CSV ────────────────────────────────────────────────────────────────
+function exportCSV(){
+  const usel = document.getElementById('usel').value;
+  const msel = document.getElementById('msel').value;
+  const MS   = {"2026-01":"Jan","2026-02":"Feb","2026-03":"Mar","2026-04":"Apr","2026-05":"May"};
+  const ms   = msel === 'all' ? Object.keys(MS) : [msel];
+
+  let rows = CSV_DATA.filter(r => usel === 'all' || r.user === usel);
+  const hdr = ["Reviewer",
+    ...ms.flatMap(m => {
+      const s = MS[m];
+      return [s+"_PRs_Reviewed",s+"_Approved",s+"_CR",s+"_Comments",s+"_Nitpick",s+"_Functional",s+"_Technical"];
+    }),
+    "Total_PRs","Total_Approved","Total_CR","Total_Comments","Total_Nitpick","Total_Functional","Total_Technical"
+  ];
+  const data = rows.map(r => [r.user,
+    ...ms.flatMap(m => {
+      const s = MS[m];
+      return [r[s+"_PRs_Reviewed"]||0, r[s+"_Approved"]||0, r[s+"_CR"]||0,
+              r[s+"_Comments"]||0, r[s+"_Nitpick"]||0, r[s+"_Functional"]||0, r[s+"_Technical"]||0];
+    }),
+    r.Total_PRs, r.Total_Approved, r.Total_CR, r.Total_Comments,
+    r.Total_Nitpick, r.Total_Functional, r.Total_Technical
+  ]);
+  const csv = [hdr,...data].map(r=>r.join(',')).join('\n');
+  const fname = `TeamPRMetrics_${msel==='all'?'JanMay2026':msel}_${usel==='all'?'AllUsers':usel}.csv`;
+  Object.assign(document.createElement('a'),
+    {href:URL.createObjectURL(new Blob([csv],{type:'text/csv'})),download:fname}).click();
+}
+
+// ── init ──────────────────────────────────────────────────────────────────────
+applyFilter();
+</script>
+</body>
+</html>
